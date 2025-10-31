@@ -1,0 +1,31 @@
+services:
+  # ---------- BACKEND ----------
+  - type: web
+    name: ai-chatbot-backend
+    env: node
+    region: oregon
+    plan: free        # or starter/pro
+    buildCommand: cd backend && npm ci
+    startCommand: cd backend && npm start
+    envVars:
+      NODE_ENV: production
+      # Add your secrets in Render UI, not here
+    healthCheckPath: /health   # optional, create a simple route
+
+  # ---------- FRONTEND (static) ----------
+  - type: static
+    name: ai-chatbot-frontend
+    env: static
+    buildCommand: cd frontend && npm ci && npm run build
+    staticPublishPath: ./frontend/dist
+    routes:
+      - path: /
+        destination: ./frontend/dist/index.html
+      - path: /**
+        destination: ./frontend/dist
+
+# Optional: redirect all API calls to backend
+previews:
+  - source: ai-chatbot-frontend
+    target: ai-chatbot-backend
+    path: /api
